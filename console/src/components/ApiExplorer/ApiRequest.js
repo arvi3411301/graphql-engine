@@ -350,6 +350,7 @@ class ApiRequest extends Component {
             dispatch={this.props.dispatch}
             headerFocus={this.props.headerFocus}
             queryParams={this.props.queryParams}
+            customGraphiQLResponse={this.props.customGraphiQLResponse}
           />
         );
       default:
@@ -397,6 +398,7 @@ ApiRequest.propTypes = {
   numberOfTables: PropTypes.number.isRequired,
   headerFocus: PropTypes.bool.isRequired,
   queryParams: PropTypes.object.isRequired,
+  customGraphiQLResponse: PropTypes.string,
 };
 
 export default ApiRequest;

@@ -39,7 +39,8 @@ class GraphiQLWrapper extends Component {
       return graphQLFetcherFinal(
         graphQLParams,
         this.props.data.url,
-        this.props.data.headers
+        this.props.data.headers,
+        this.props.dispatch
       );
     };
 
@@ -52,6 +53,13 @@ class GraphiQLWrapper extends Component {
       if (this.state.queries) {
         content = (
           <GraphiQL fetcher={graphQLFetcher} query={this.state.queries} />
+        );
+      } else if (this.props.customGraphiQLResponse) {
+        content = (
+          <GraphiQL
+            fetcher={graphQLFetcher}
+            response={this.props.customGraphiQLResponse}
+          />
         );
       } else {
         content = <GraphiQL fetcher={graphQLFetcher} />;

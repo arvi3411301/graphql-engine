@@ -36,6 +36,9 @@ const CREATE_WEBSOCKET_CLIENT = 'ApiExplorer/CREATE_WEBSOCKET_CLIENT';
 const FOCUS_ROLE_HEADER = 'ApiExplorer/FOCUS_ROLE_HEADER';
 const UNFOCUS_ROLE_HEADER = 'ApiExplorer/UNFOCUS_ROLE_HEADER';
 
+const SHOW_CUSTOM_GRAPHIQL_RESPONSE =
+  'ApiExplorer/SHOW_CUSTOM_GRAPHIQL_RESPONSE';
+
 import requestAction from '../Common/makeRequest';
 import Endpoints from 'Endpoints';
 import { getHeadersAsJSON } from './utils';
@@ -140,6 +143,13 @@ const changeRequestUrl = newUrl => {
   };
 };
 
+const showCustomGraphiQLResponse = message => {
+  return {
+    type: SHOW_CUSTOM_GRAPHIQL_RESPONSE,
+    data: message,
+  };
+};
+
 const changeRequestParams = newParams => {
   return (dispatch, getState) => {
     const onBoardingCurrentStep = getState().main.exploreOnBoardingSidebar
@@ -169,7 +179,7 @@ const changeRequestParams = newParams => {
   };
 };
 
-const createWsClient = (url, headers) => {
+const createWsClient = (url, headers, dispatch) => {
   const gqlUrl = new URL(url);
   const windowUrl = new URL(window.location);
   let websocketProtocol = 'ws';
@@ -184,13 +194,19 @@ const createWsClient = (url, headers) => {
         ...headersFinal,
       },
     },
+    connectionCallback: err => {
+      if (err) {
+        dispatch(showCustomGraphiQLResponse(err));
+        client.close(1, 1);
+      }
+    },
     reconnect: true,
   });
   return client;
 };
 
-const graphqlSubscriber = (graphQLParams, url, headers) => {
-  const link = new WebSocketLink(createWsClient(url, headers));
+const graphqlSubscriber = (graphQLParams, url, headers, dispatch) => {
+  const link = new WebSocketLink(createWsClient(url, headers, dispatch));
   try {
     const fetcher = operation => {
       operation.query = parse(operation.query);
@@ -215,9 +231,9 @@ const isSubscription = graphQlParams => {
   return false;
 };
 
-const graphQLFetcherFinal = (graphQLParams, url, headers) => {
+const graphQLFetcherFinal = (graphQLParams, url, headers, dispatch) => {
   if (isSubscription(graphQLParams)) {
-    return graphqlSubscriber(graphQLParams, url, headers);
+    return graphqlSubscriber(graphQLParams, url, headers, dispatch);
   }
   return fetch(url, {
     method: 'POST',
@@ -601,6 +617,11 @@ const apiExplorerReducer = (state = defaultState, action) => {
       return {
         ...state,
         headerFocus: true,
+      };
+    case SHOW_CUSTOM_GRAPHIQL_RESPONSE:
+      return {
+        ...state,
+        customGraphiQLResponse: action.data,
       };
     default:
       return state;

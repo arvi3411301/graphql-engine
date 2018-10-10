@@ -63,6 +63,7 @@ const defaultState = {
   explorerData,
   authApiExpanded: 'Username-password Login',
   headerFocus: false,
+  customGraphiQLResponse: null,
 };
 
 export default defaultState;

@@ -41,6 +41,7 @@ class ApiRequestWrapper extends Component {
           numberOfTables={this.props.numberOfTables}
           headerFocus={this.props.headerFocus}
           queryParams={this.props.queryParams}
+          customGraphiQLResponse={this.props.customGraphiQLResponse}
         />
         {this.props.request.bodyType !== 'graphql' ? (
           <ApiResponse
@@ -72,6 +73,7 @@ ApiRequestWrapper.propTypes = {
   numberOfTables: PropTypes.number,
   headerFocus: PropTypes.bool.isRequired,
   queryParams: PropTypes.bool.isRequired,
+  customGraphiQLResponse: PropTypes.string,
 };
 
 export default ApiRequestWrapper;
