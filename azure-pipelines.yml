@@ -25,12 +25,16 @@ jobs:
       - checkout: self
         clean: true
       - bash: |
-          BUILD_FLAGS="--fast --coverage" make ci-binary
+          build_output=$BUILD_OUTPUT BUILD_FLAGS="--fast --coverage" make ci-binary
         workingDirectory: $(Build.Repository.LocalPath)/server
         displayName: Running non-optimized build with coverage
         condition: in(variables['Build.Reason'], 'PullRequest')
+        env:
+          BUILD_OUTPUT: $(Build.ArtifactStagingDirectory)/server_output
       - bash: |
-          make ci-binary
+          build_output=$BUILD_OUTPUT make ci-binary
         workingDirectory: $(Build.Repository.LocalPath)/server
         displayName: Running optimized build with coverage
         condition: in(variables['Build.Reason'], 'IndividualCI', 'Manual')
+        env:
+          BUILD_OUTPUT: $(Build.ArtifactStagingDirectory)/server_output
