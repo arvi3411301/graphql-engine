@@ -6,14 +6,16 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'Ubuntu-16.04'
+resources:
+  containers:
+    - container: server_builder
+      image: hasura/graphql-engine-server-builder:20190314
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+jobs:
+  - job: build_server
+    pool:
+      vmImage: 'ubuntu-16.04'
+    container: server_builder
+    steps:
+      - checkout: self
+        clean: true
