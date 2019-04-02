@@ -26,9 +26,11 @@ jobs:
         clean: true
       - bash: |
           BUILD_FLAGS="--fast --coverage" make ci-binary
+        workingDirectory: $(Build.Repository.LocalPath)/server
         displayName: Running non-optimized build with coverage
         condition: in(variables['Build.Reason'], 'PullRequest')
       - bash: |
           make ci-binary
-        displayName: Running non-optimized build with coverage
+        workingDirectory: $(Build.Repository.LocalPath)/server
+        displayName: Running optimized build with coverage
         condition: in(variables['Build.Reason'], 'IndividualCI', 'Manual')
