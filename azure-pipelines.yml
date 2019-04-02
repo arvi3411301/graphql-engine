@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
@@ -15,6 +10,26 @@ resources:
   containers:
     - container: server_builder
       image: hasura/graphql-engine-server-builder:20190314
+    - container: postgres_9_5
+      image: circleci/postgres:9.5-alpine-postgis
+      env:
+        POSTGRES_USER: gql_test
+        POSTGRES_DB: gql_test
+    - container: postgres_9_6
+      image: circleci/postgres:9.6-alpine-postgis
+      env:
+        POSTGRES_USER: gql_test
+        POSTGRES_DB: gql_test
+    - container: postgres_10_6
+      image: circleci/postgres:10.6-alpine-postgis
+      env:
+        POSTGRES_USER: gql_test
+        POSTGRES_DB: gql_test
+    - container: postgres_11_1
+      image: mdillon/postgis:11-alpine
+      env:
+        POSTGRES_USER: gql_test
+        POSTGRES_DB: gql_test
 
 jobs:
   - job: build_server
@@ -45,3 +60,27 @@ jobs:
         displayName: Build docker image and save to artifacts folder
         env:
           BUILD_OUTPUT: $(Build.ArtifactStagingDirectory)/server_output
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: $(Build.ArtifactStagingDirectory)/server_output
+          artifactName: serverOutput
+  - job: pytest_server
+    pool:
+      vmImage: 'ubuntu-16.04'
+    container: server_builder
+    dependsOn:
+      - build_server
+    strategy:
+      matrix:
+        postgres_9_5:
+          serviceName: postgres_9_5
+          version: "9_5"
+        postgres_9_6:
+          serviceName: postgres_9_6
+          version: "9_6"
+    services:
+      postgres: $[ variables['serviceName'] ]
+    variables:
+      PG_VERSION: $[ variables['version'] ]
+    steps:
+      - bash: echo $(PG_VERSION)
