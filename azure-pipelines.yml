@@ -6,6 +6,11 @@
 trigger:
 - master
 
+pr:
+  branches:
+    include:
+      - master
+
 resources:
   containers:
     - container: server_builder
@@ -19,3 +24,11 @@ jobs:
     steps:
       - checkout: self
         clean: true
+      - bash: |
+          BUILD_FLAGS="--fast --coverage" make ci-binary
+        displayName: Running non-optimized build with coverage
+        condition: in(variables['Build.Reason'], 'PullRequest')
+      - bash: |
+          make ci-binary
+        displayName: Running non-optimized build with coverage
+        condition: in(variables['Build.Reason'], 'IndividualCI', 'Manual')
