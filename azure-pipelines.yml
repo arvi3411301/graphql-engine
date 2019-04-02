@@ -38,3 +38,10 @@ jobs:
         condition: in(variables['Build.Reason'], 'IndividualCI', 'Manual')
         env:
           BUILD_OUTPUT: $(Build.ArtifactStagingDirectory)/server_output
+      - bash: |
+          build_output=$BUILD_OUTPUT make ci-image
+          build_output=$BUILD_OUTPUT make ci-save-image
+        workingDirectory: $(Build.Repository.LocalPath)/server
+        displayName: Build docker image and save to artifacts folder
+        env:
+          BUILD_OUTPUT: $(Build.ArtifactStagingDirectory)/server_output
