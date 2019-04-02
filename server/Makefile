@@ -8,7 +8,7 @@ packager_ver := 20190326
 project_dir := $(shell pwd)
 build_dir := $(project_dir)/$(shell stack path --dist-dir)/build
 
-build_output := /build/_server_output
+build_output ?= /build/_server_output
 
 dev: src-lib src-exec src-rsr
 	stack build --fast
