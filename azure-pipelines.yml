@@ -89,7 +89,7 @@ jobs:
       - checkout: self
         clean: true
       - bash: |
-          mkdir -p /usr/share/man/man{1,7}
+          sudo mkdir -p /usr/share/man/man{1,7}
           sudo apt-get update
           sudo apt install --yes pgbouncer jq curl postgresql-client
         displayName: Install deps
