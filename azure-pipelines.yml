@@ -60,9 +60,9 @@ jobs:
         displayName: Build docker image and save to artifacts folder
         env:
           BUILD_OUTPUT: $(Build.ArtifactStagingDirectory)/server_output
-      - task: PublishBuildArtifacts@1
+      - task: PublishPipelineArtifact@0
         inputs:
-          PathtoPublish: $(Build.ArtifactStagingDirectory)/server_output
+          targetPath: $(Build.ArtifactStagingDirectory)/server_output
           artifactName: serverOutput
   - job: pytest_server
     pool:
@@ -80,7 +80,34 @@ jobs:
           version: "9_6"
     services:
       postgres: $[ variables['serviceName'] ]
-    variables:
-      PG_VERSION: $[ variables['version'] ]
     steps:
-      - bash: echo $(PG_VERSION)
+      - task: DownloadPipelineArtifact@0
+        displayName: Downloading serverOutput artifact
+        inputs:
+          artifactName: serverOutput
+          targetPath: $(Build.ArtifactStagingDirectory)/server_output
+      - checkout: self
+        clean: true
+      - bash: |
+          mkdir -p /usr/share/man/man{1,7}
+          apt-get update
+          apt install --yes pgbouncer jq curl postgresql-client
+        displayName: Install deps
+      - bash: |
+          OUTPUT_FOLDER=/build/_server_test_output/$PG_VERSION .circleci/test-server.sh
+        displayName: Running python tests
+        env:
+          HASURA_GRAPHQL_DATABASE_URL: 'postgres://gql_test:@postgres:5432/gql_test'
+          GRAPHQL_ENGINE: '$(Build.ArtifactStagingDirectory)/server_output/graphql-engine'
+          PG_VERSION: $[ variables['version'] ]
+      - bash: |
+          stack --system-ghc hpc report $SERVER_OUTPUT_URL/$PG_VERSION/graphql-engine.tix --destdir SERVER_OUTPUT_URL/$PG_VERSION
+        displayName: Generating coverage report
+        workingDirectory: $(Build.Repository.LocalPath)/server
+        env:
+          PG_VERSION: $[ variables['version'] ]
+          SERVER_OUTPUT_URL: '$(Build.ArtifactStagingDirectory)/_server_test_output'
+      - task: PublishPipelineArtifact@0
+        inputs:
+          targetPath: $(Build.ArtifactStagingDirectory)/_server_test_output
+          artifactName: serverTestOutput
