@@ -94,14 +94,15 @@ jobs:
           apt install --yes pgbouncer jq curl postgresql-client
         displayName: Install deps
       - bash: |
-          OUTPUT_FOLDER=/build/_server_test_output/$PG_VERSION .circleci/test-server.sh
+          OUTPUT_FOLDER=$SERVER_OUTPUT_URL/$PG_VERSION .circleci/test-server.sh
         displayName: Running python tests
         env:
           HASURA_GRAPHQL_DATABASE_URL: 'postgres://gql_test:@postgres:5432/gql_test'
           GRAPHQL_ENGINE: '$(Build.ArtifactStagingDirectory)/server_output/graphql-engine'
+          SERVER_OUTPUT_URL: '$(Build.ArtifactStagingDirectory)/_server_test_output'
           PG_VERSION: $[ variables['version'] ]
       - bash: |
-          stack --system-ghc hpc report $SERVER_OUTPUT_URL/$PG_VERSION/graphql-engine.tix --destdir SERVER_OUTPUT_URL/$PG_VERSION
+          stack --system-ghc hpc report $SERVER_OUTPUT_URL/$PG_VERSION/graphql-engine.tix --destdir $SERVER_OUTPUT_URL/$PG_VERSION
         displayName: Generating coverage report
         workingDirectory: $(Build.Repository.LocalPath)/server
         env:
