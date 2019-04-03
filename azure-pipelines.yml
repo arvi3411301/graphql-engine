@@ -90,8 +90,8 @@ jobs:
         clean: true
       - bash: |
           mkdir -p /usr/share/man/man{1,7}
-          apt-get update
-          apt install --yes pgbouncer jq curl postgresql-client
+          sudo apt-get update
+          sudo apt install --yes pgbouncer jq curl postgresql-client
         displayName: Install deps
       - bash: |
           OUTPUT_FOLDER=$SERVER_OUTPUT_URL/$PG_VERSION .circleci/test-server.sh
