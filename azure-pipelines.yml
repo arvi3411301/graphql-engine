@@ -9,7 +9,7 @@ pr:
 resources:
   containers:
     - container: server_builder
-      image: face11301/graphql-engine-server-builder:20190314
+      image: face11301/graphql-engine-server-builder:20190404
     - container: postgres_9_5
       image: circleci/postgres:9.5-alpine-postgis
       env:
