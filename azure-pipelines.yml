@@ -95,6 +95,9 @@ jobs:
       - checkout: self
         clean: true
       - bash: |
+          ls -la $(Build.ArtifactStagingDirectory)/server_output
+          chmod +x $(Build.ArtifactStagingDirectory)/server_output/graphql-engine
+          echo $GRAPHQL_ENGINE
           OUTPUT_FOLDER=$SERVER_OUTPUT_URL/$PG_VERSION .circleci/test-server.sh
         displayName: Running python tests
         env:
