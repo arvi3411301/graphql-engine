@@ -95,12 +95,9 @@ jobs:
           targetPath: $(Build.ArtifactStagingDirectory)/server_output
       - checkout: self
         clean: true
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '3.6'
-          architecture: 'x64'
       - bash: |
           chmod +x $GRAPHQL_ENGINE
+          export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           OUTPUT_FOLDER=$SERVER_OUTPUT_URL/$PG_VERSION .circleci/test-server.sh
         displayName: Running python tests
         env:
@@ -117,6 +114,6 @@ jobs:
           SERVER_OUTPUT_URL: $(Build.ArtifactStagingDirectory)/_server_test_output
       - task: PublishPipelineArtifact@0
         inputs:
-          targetPath: $(Build.ArtifactStagingDirectory)/_server_test_output
-          artifactName: serverTestOutput
+          targetPath: $(Build.ArtifactStagingDirectory)/_server_test_output/$(version)
+          artifactName: serverTestOutput$(version)
         condition: always()
