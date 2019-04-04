@@ -64,6 +64,7 @@ jobs:
         inputs:
           targetPath: $(Build.ArtifactStagingDirectory)/server_output
           artifactName: serverOutput
+        condition: always()
   - job: pytest_server
     pool:
       vmImage: 'ubuntu-16.04'
@@ -94,25 +95,28 @@ jobs:
           targetPath: $(Build.ArtifactStagingDirectory)/server_output
       - checkout: self
         clean: true
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.6'
+          architecture: 'x64'
       - bash: |
-          ls -la $(Build.ArtifactStagingDirectory)/server_output
-          chmod +x $(Build.ArtifactStagingDirectory)/server_output/graphql-engine
-          echo $GRAPHQL_ENGINE
+          chmod +x $GRAPHQL_ENGINE
           OUTPUT_FOLDER=$SERVER_OUTPUT_URL/$PG_VERSION .circleci/test-server.sh
         displayName: Running python tests
         env:
           HASURA_GRAPHQL_DATABASE_URL: 'postgres://gql_test:@postgres:5432/gql_test'
-          GRAPHQL_ENGINE: '$(Build.ArtifactStagingDirectory)/server_output/graphql-engine'
-          SERVER_OUTPUT_URL: '$(Build.ArtifactStagingDirectory)/_server_test_output'
-          PG_VERSION: $[ variables['version'] ]
+          GRAPHQL_ENGINE: $(Build.ArtifactStagingDirectory)/server_output/graphql-engine
+          SERVER_OUTPUT_URL: $(Build.ArtifactStagingDirectory)/_server_test_output
+          PG_VERSION: '$(version)'
       - bash: |
           stack --system-ghc hpc report $SERVER_OUTPUT_URL/$PG_VERSION/graphql-engine.tix --destdir $SERVER_OUTPUT_URL/$PG_VERSION
         displayName: Generating coverage report
         workingDirectory: $(Build.Repository.LocalPath)/server
         env:
-          PG_VERSION: $[ variables['version'] ]
-          SERVER_OUTPUT_URL: '$(Build.ArtifactStagingDirectory)/_server_test_output'
+          PG_VERSION: '$(version)'
+          SERVER_OUTPUT_URL: $(Build.ArtifactStagingDirectory)/_server_test_output
       - task: PublishPipelineArtifact@0
         inputs:
           targetPath: $(Build.ArtifactStagingDirectory)/_server_test_output
           artifactName: serverTestOutput
+        condition: always()
