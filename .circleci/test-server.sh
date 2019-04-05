@@ -369,12 +369,12 @@ HASURA_HS_TEST_DB='postgres://postgres:postgres@localhost:6543/hs_hge_test'
 psql "$HASURA_GRAPHQL_DATABASE_URL" -c "create database hs_hge_test;"
 
 # create pgbouncer user
-useradd pgbouncer
+#useradd pgbouncer
 cd $CIRCLECI_FOLDER
-chown -R pgbouncer:pgbouncer pgbouncer
+#chown -R pgbouncer:pgbouncer pgbouncer
 
 # start pgbouncer
-pgbouncer -u pgbouncer -d pgbouncer/pgbouncer.ini
+pgbouncer -d pgbouncer/pgbouncer.ini
 
 cd $PYTEST_ROOT
 
@@ -397,7 +397,7 @@ psql "postgres://postgres:postgres@localhost:6543/pgbouncer" -c "SHUTDOWN;" || t
 cd $CIRCLECI_FOLDER
 
 # start pgbouncer again
-pgbouncer -u pgbouncer -d pgbouncer/pgbouncer.ini
+pgbouncer -d pgbouncer/pgbouncer.ini
 
 cd $PYTEST_ROOT
 
