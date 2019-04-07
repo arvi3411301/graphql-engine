@@ -365,13 +365,10 @@ unset HASURA_GRAPHQL_ADMIN_SECRET
 
 echo -e "\n<########## TEST GRAPHQL-ENGINE WITH HORIZONTAL SCALING ########>\n"
 
-HASURA_HS_TEST_DB='postgres://postgres:postgres@localhost:6543/hs_hge_test'
+HASURA_HS_TEST_DB='postgres://postgres:postgres@127.0.0.1:6543/hs_hge_test'
 psql "$HASURA_GRAPHQL_DATABASE_URL" -c "create database hs_hge_test;"
 
-# create pgbouncer user
-#useradd pgbouncer
 cd $CIRCLECI_FOLDER
-#chown -R pgbouncer:pgbouncer pgbouncer
 
 # start pgbouncer
 pgbouncer -d pgbouncer/pgbouncer.ini
@@ -392,7 +389,7 @@ wait_for_port 8081
 python3 -m pytest -vv --hge-url="$HGE_URL" --pg-url="$HASURA_GRAPHQL_DATABASE_URL" --test-hge-scale-url="http://localhost:8081" test_horizontal_scale.py
 
 # Shutdown pgbouncer
-psql "postgres://postgres:postgres@localhost:6543/pgbouncer" -c "SHUTDOWN;" || true
+psql "postgres://postgres:postgres@127.0.0.1:6543/pgbouncer" -c "SHUTDOWN;" || true
 
 cd $CIRCLECI_FOLDER
 
@@ -408,7 +405,7 @@ sleep 30
 python3 -m pytest -vv --hge-url="$HGE_URL" --pg-url="$HASURA_GRAPHQL_DATABASE_URL" --test-hge-scale-url="http://localhost:8081" test_horizontal_scale.py
 
 # Shutdown pgbouncer
-psql "postgres://postgres:postgres@localhost:6543/pgbouncer" -c "SHUTDOWN;" || true
+psql "postgres://postgres:postgres@127.0.0.1:6543/pgbouncer" -c "SHUTDOWN;" || true
 
 kill $PID
 kill $HS_PID
