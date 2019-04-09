@@ -96,12 +96,17 @@ jobs:
       - checkout: self
         clean: true
       - bash: |
+          psql "$DATABASE_URL" -c "SELECT 1 FROM pg_database WHERE datname = 'gql_test2'" | grep -q -F '(1 row)' || psql "$DATABASE_URL" -c 'CREATE DATABASE gql_test2;'
+        env:
+          DATABASE_URL: 'postgres://gql_test:@localhost:5432/gql_test'
+      - bash: |
           chmod +x $GRAPHQL_ENGINE
           export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           OUTPUT_FOLDER=$SERVER_OUTPUT_URL/$PG_VERSION .circleci/test-server.sh
         displayName: Running python tests
         env:
           HASURA_GRAPHQL_DATABASE_URL: 'postgres://gql_test:@postgres:5432/gql_test'
+          HASURA_GRAPHQL_DATABASE_URL_2: 'postgres://gql_test:@localhost:5432/gql_test2'
           GRAPHQL_ENGINE: $(Build.ArtifactStagingDirectory)/server_output/graphql-engine
           SERVER_OUTPUT_URL: $(Build.ArtifactStagingDirectory)/_server_test_output
           PG_VERSION: '$(version)'
