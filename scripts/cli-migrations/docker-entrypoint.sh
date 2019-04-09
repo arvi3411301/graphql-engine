@@ -32,7 +32,7 @@ wait_for_port() {
 log "starting graphql engine temporarily on port $HASURA_GRAPHQL_SERVER_PORT"
 
 # start graphql engine
-graphql-engine serve &
+graphql-engine serve --enabled-apis metadata &
 # store the pid to kill it later
 PID=$!
 
