@@ -106,7 +106,7 @@ jobs:
         displayName: Running python tests
         env:
           HASURA_GRAPHQL_DATABASE_URL: 'postgres://gql_test:@postgres:5432/gql_test'
-          HASURA_GRAPHQL_DATABASE_URL_2: 'postgres://gql_test:@postgres:5432/gql_test'
+          HASURA_GRAPHQL_DATABASE_URL_2: 'postgres://gql_test:@postgres:5432/gql_test2'
           GRAPHQL_ENGINE: $(Build.ArtifactStagingDirectory)/server_output/graphql-engine
           SERVER_OUTPUT_URL: $(Build.ArtifactStagingDirectory)/_server_test_output
           PG_VERSION: '$(version)'
