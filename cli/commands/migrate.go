@@ -2,10 +2,12 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/url"
 	"runtime"
 	"strings"
 
+	"github.com/ghodss/yaml"
 	"github.com/hasura/graphql-engine/cli"
 	"github.com/hasura/graphql-engine/cli/migrate"
 	mig "github.com/hasura/graphql-engine/cli/migrate/cmd"
@@ -46,7 +48,7 @@ func newMigrate(dir string, db *url.URL, adminSecretValue string, logger *logrus
 }
 
 // ExecuteMigration runs the actual migration
-func ExecuteMigration(cmd string, t *migrate.Migrate, stepOrVersion int64) error {
+func ExecuteMigration(cmd string, t *migrate.Migrate, stepOrVersion int64, ec *cli.ExecutionContext) error {
 	var err error
 
 	switch cmd {
@@ -66,8 +68,25 @@ func ExecuteMigration(cmd string, t *migrate.Migrate, stepOrVersion int64) error
 	default:
 		err = fmt.Errorf("Invalid command")
 	}
-
-	return err
+	if err != nil {
+		return err
+	}
+	exportMetadata := t.GetMetadataState()
+	if exportMetadata != nil {
+		metadataPath, err := ec.GetMetadataFilePath("yaml")
+		if err != nil {
+			return errors.Wrap(err, "cannot save metadata")
+		}
+		metadataByt, err := yaml.Marshal(exportMetadata)
+		if err != nil {
+			return errors.Wrap(err, "cannot save metadata")
+		}
+		err = ioutil.WriteFile(metadataPath, metadataByt, 0644)
+		if err != nil {
+			return errors.Wrap(err, "cannot save metadata")
+		}
+	}
+	return nil
 }
 
 func executeStatus(t *migrate.Migrate) (*migrate.Status, error) {

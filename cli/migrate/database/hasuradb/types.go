@@ -281,6 +281,7 @@ const (
 	dropCollectionFromAllowList              = "drop_collection_from_allowlist"
 	replaceMetadata                          = "replace_metadata"
 	clearMetadata                            = "clear_metadata"
+	exportMetadata                           = "export_metadata"
 	runSQL                                   = "run_sql"
 	bulkQuery                                = "bulk"
 	addComputedField                         = "add_computed_field"
@@ -583,6 +584,9 @@ type dropComputedFieldInput struct {
 }
 
 type clearMetadataInput struct {
+}
+
+type exportMetadataInput struct {
 }
 
 type replaceMetadataInput struct {

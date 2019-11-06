@@ -50,6 +50,7 @@ type HasuraDB struct {
 	settings       []database.Setting
 	migrations     *database.Migrations
 	migrationQuery HasuraInterfaceBulk
+	metadataState  interface{}
 	jsonPath       map[string]string
 	isLocked       bool
 	logger         *log.Logger
@@ -159,6 +160,7 @@ func (h *HasuraDB) Lock() error {
 		Type: "bulk",
 		Args: make([]interface{}, 0),
 	}
+	h.metadataState = nil
 	h.jsonPath = make(map[string]string)
 	h.isLocked = true
 	return nil
@@ -176,6 +178,12 @@ func (h *HasuraDB) UnLock() error {
 	if len(h.migrationQuery.Args) == 0 {
 		return nil
 	}
+
+	// Add Export metadata
+	h.migrationQuery.Args = append(h.migrationQuery.Args, HasuraInterfaceQuery{
+		Type: exportMetadata,
+		Args: exportMetadataInput{},
+	})
 
 	resp, body, err := h.sendv1Query(h.migrationQuery)
 	if err != nil {
@@ -222,6 +230,13 @@ func (h *HasuraDB) UnLock() error {
 		}
 		return horror.Error(h.config.isCMD)
 	}
+
+	var data []interface{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return err
+	}
+	h.metadataState = data[len(data)-1]
 	return nil
 }
 

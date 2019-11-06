@@ -323,6 +323,10 @@ func (m *Migrate) ApplyMetadata(data interface{}) error {
 	return m.databaseDrv.ApplyMetadata(data)
 }
 
+func (m *Migrate) GetMetadataState() interface{} {
+	return m.databaseDrv.GetMetadataState()
+}
+
 func (m *Migrate) ExportSchemaDump(schemName []string) ([]byte, error) {
 	return m.databaseDrv.ExportSchemaDump(schemName)
 }

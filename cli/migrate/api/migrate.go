@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/hasura/graphql-engine/cli/migrate"
 	"github.com/hasura/graphql-engine/cli/migrate/cmd"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -48,10 +50,15 @@ func MigrateAPI(c *gin.Context) {
 		return
 	}
 
-	// Convert to url.URL
+	metadataFilePtr, ok := c.Get("metadataFile")
+	if !ok {
+		return
+	}
+
 	t := migratePtr.(*migrate.Migrate)
 	sourceURL := sourcePtr.(*url.URL)
 	logger := loggerPtr.(*logrus.Logger)
+	metadataFile := metadataFilePtr.(string)
 
 	// Switch on request method
 	switch c.Request.Method {
@@ -127,6 +134,19 @@ func MigrateAPI(c *gin.Context) {
 
 			c.JSON(http.StatusInternalServerError, &Response{Code: "internal_error", Message: err.Error()})
 			return
+		}
+		exportMetadata := t.GetMetadataState()
+		if exportMetadata != nil {
+			metadataByt, err := yaml.Marshal(exportMetadata)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, &Response{Code: "export_metadata_error", Message: err.Error()})
+				return
+			}
+			err = ioutil.WriteFile(metadataFile, metadataByt, 0644)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, &Response{Code: "export_metadata_error", Message: err.Error()})
+				return
+			}
 		}
 		c.JSON(http.StatusOK, &Response{Name: fmt.Sprintf("%d_%s", timestamp, request.Name)})
 	default:

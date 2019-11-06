@@ -10,4 +10,6 @@ type MetadataDriver interface {
 	ApplyMetadata(data interface{}) error
 
 	Query(data []interface{}) error
+
+	GetMetadataState() interface{}
 }

@@ -77,7 +77,7 @@ func (o *migrateApplyOptions) run() error {
 	}
 	migrateDrv.SkipExecution = o.skipExecution
 
-	err = ExecuteMigration(migrationType, migrateDrv, step)
+	err = ExecuteMigration(migrationType, migrateDrv, step, o.EC)
 	if err != nil {
 		if err == migrate.ErrNoChange {
 			o.EC.Logger.Info("nothing to apply")

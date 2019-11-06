@@ -169,3 +169,7 @@ func (h *HasuraDB) Query(data []interface{}) error {
 	}
 	return nil
 }
+
+func (h *HasuraDB) GetMetadataState() interface{} {
+	return h.metadataState
+}
