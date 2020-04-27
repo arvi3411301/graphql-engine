@@ -4,6 +4,7 @@ refs:
     run:
       name: checking if job should be terminated or not
       command: |
+        exit 1
         if [ -f /build/ciignore/skip_job.txt ]; then
           echo "halting job due to /build/ciignore/skip_job.txt"
           circleci-agent step halt
@@ -590,12 +591,3 @@ workflows:
         <<: *filter_only_vtags
         requires:
         - check_build_worthiness
-    - build_server:
-        <<: *filter_only_vtags
-        requires:
-        - check_build_worthiness
-    - build_image:
-        <<: *filter_only_vtags
-        requires:
-        - build_server
-        - build_console
