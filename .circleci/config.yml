@@ -145,7 +145,7 @@ jobs:
         name: check build worthiness
         command: .circleci/ciignore.sh
     - store_artifacts:
-        path: /build/_check_build_worthiness_output
+        path: /build/ciignore
         destination: ciignore
     - persist_to_workspace:
         root: /build
@@ -586,3 +586,16 @@ workflows:
   workflow_v20200414:
     jobs:
     - check_build_worthiness: *filter_only_vtags
+    - build_console:
+        <<: *filter_only_vtags
+        requires:
+        - check_build_worthiness
+    - build_server:
+        <<: *filter_only_vtags
+        requires:
+        - check_build_worthiness
+    - build_image:
+        <<: *filter_only_vtags
+        requires:
+        - build_server
+        - build_console
